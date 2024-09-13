@@ -1,3 +1,4 @@
+// server.js
 const express = require('express');
 const http = require('http');
 const cors = require('cors');
@@ -25,8 +26,14 @@ io.on('connection', (socket) => {
     console.log(users);
   });
 
-  socket.on('sendMessage', (message) => {
-    io.emit('receiveMessage', message); // Broadcast message to all users
+  socket.on('sendMessage', ({ message, recipientId }) => {
+    // Send message to specific user
+    if (recipientId) {
+      io.to(recipientId).emit('receiveMessage', message);
+    } else {
+      // Fallback to broadcasting if recipientId is not specified
+      io.emit('receiveMessage', message);
+    }
   });
 
   socket.on('disconnect', () => {
